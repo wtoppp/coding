@@ -25,7 +25,7 @@ func main() {
 	b = a.(Person)
 	fmt.Println(b)
 
-	//例2类型断言时带上检测机制。
+	//例2 类型断言时带上检测机制。
 	var x float64 = 3.14
 	a = x
 	//var y float64
