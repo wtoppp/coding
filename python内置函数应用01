@@ -1,0 +1,88 @@
+#coding:utf-8
+'''
+python内置函数应用
+hasattr   setattr   __dict__
+'''
+#例1
+class Person:
+    """人员类"""
+    def __init__(self, name, age):
+        self.name = name  # 姓名
+        self.age = age    # 年龄
+
+    def to_dict(self):
+        """转换为字典，过滤私有属性"""
+        return {key: value for key, value in self.__dict__.items() 
+                if not key.startswith('__')}
+
+    def to_json(self):
+        """转换为JSON字符串"""
+        import json
+        return json.dumps(self.to_dict())
+
+
+def validate_filed(per):
+    """验证对象是否包含必需字段"""
+    required_filed = ['name', 'age']  # 必需字段列表
+    miss_fields = []
+    
+    # 检查每个必需字段是否存在
+    for field in required_filed:
+        if not hasattr(per, field):
+            miss_fields.append(field)
+    
+    # 如果有缺失字段则抛出异常
+    if miss_fields:
+        raise ValueError(f"缺少必需的字段{miss_fields}")
+    return True
+
+
+# 创建Person实例
+person = Person("tim", 20)
+
+# 验证字段完整性
+validate_filed(person)
+print(person.__dict__)  # 打印对象所有属性
+print("==============")
+print("对象字典:", person.to_dict())
+print("json:", person.to_json())
+
+# 三种设置属性的方式（效果相同）
+person.name = "Jack"                    # 直接赋值
+setattr(person, 'age', 18)              # 使用setattr动态设置
+person.__dict__['email'] = "Jack@163.com"  # 直接操作__dict__
+
+print("更新后json:", person.to_json())
+
+#例2
+class Config:
+    """配置类"""
+    def __init__(self):
+        # 初始化默认配置
+        self.host = "localhost"
+        self.port = 8080
+        self.debug = True
+
+    def update_from_dict(self, config_dict):
+        """从字典更新属性 - 只更新已存在的属性"""
+        for key, value in config_dict.items():
+            if hasattr(self, key):  # 检查属性是否存在
+                setattr(self, key, value)  # 动态设置属性值
+
+    def print_all(self):
+        """打印所有属性"""
+        for attr_name, attr_value in self.__dict__.items():
+            print(f"{attr_name}: {attr_value}")
+
+
+# 配置管理示例
+config = Config()
+print("\n原始配置:")
+config.print_all()
+
+# 更新配置
+new_config = {"host": "127.0.0.1", "port": 9000}
+config.update_from_dict(new_config)
+
+print("\n更新后配置:")
+config.print_all()
